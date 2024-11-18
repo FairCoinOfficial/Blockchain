@@ -1,137 +1,169 @@
-Iquidus Explorer - 1.7.4
-================
+# FairCoin Explorer - 1.7.4
 
-An open source block explorer written in node.js.
+An open source block explorer written in node.js for FairCoin.
 
-### See it in action
+## See it in action
 
-*  [List of live explorers running Iquidus](https://github.com/iquidus/explorer/wiki/Live-Explorers)
+* [FairCoin Explorer](https://blockchain.fairco.in/)
 
+## Requires
 
-*Note: If you would like your instance mentioned here contact me*
+* Node.js >= 8.17.0 (12.14.0 is advised for updated dependencies)
+* MongoDB 4.2.x
+* FairCoin wallet
 
-### Requires
+## Create database
 
-*  node.js >= 8.17.0 (12.14.0 is advised for updated dependencies)
-*  mongodb 4.2.x
-*  *coind
+Enter MongoDB CLI:
 
-### Create database
+```bash
+$ mongo
+```
 
-Enter MongoDB cli:
+Create database:
 
-    $ mongo
-
-Create databse:
-
-    > use explorerdb
+```javascript
+> use explorerdb
+```
 
 Create user with read/write access:
 
-    > db.createUser( { user: "iquidus", pwd: "3xp!0reR", roles: [ "readWrite" ] } )
+```javascript
+> db.createUser({ user: "iquidus", pwd: "3xp!0reR", roles: ["readWrite"] })
+```
 
-*Note: If you're using mongo shell 4.2.x, use the following to create your user:
+*Note: If you're using MongoDB shell 4.2.x, use the following to create your user:*
 
-    > db.addUser( { user: "username", pwd: "password", roles: [ "readWrite"] })
+```javascript
+> db.addUser({ user: "username", pwd: "password", roles: ["readWrite"] })
+```
 
-### Get the source
+## Get the source
 
-    git clone https://github.com/iquidus/explorer explorer
+```bash
+git clone https://github.com/FairCoinOfficial/Blockchain explorer
+```
 
-### Install node modules
+## Install node modules
 
-    cd explorer && npm install --production
+```bash
+cd explorer && npm install --production
+```
 
-### Configure
+## Configure
 
-    cp ./settings.json.template ./settings.json
+```bash
+cp ./settings.json.template ./settings.json
+```
 
-*Make required changes in settings.json*
+*Make required changes in `settings.json`*
 
-### Start Explorer
+## Start Explorer
 
-    npm start
+```bash
+npm start
+```
 
-*Note: mongod must be running to start the explorer*
+*Note: `mongod` must be running to start the explorer*
 
-As of version 1.4.0 the explorer defaults to cluster mode, forking an instance of its process to each cpu core. This results in increased performance and stability. Load balancing gets automatically taken care of and any instances that for some reason die, will be restarted automatically. For testing/development (or if you just wish to) a single instance can be launched with
+As of version 1.4.0, the explorer defaults to cluster mode, forking an instance of its process to each CPU core. This results in increased performance and stability. Load balancing gets automatically taken care of, and any instances that for some reason die, will be restarted automatically. For testing/development (or if you just wish to) a single instance can be launched with:
 
-    node --stack-size=10000 bin/instance
+```bash
+node --stack-size=10000 bin/instance
+```
 
-To stop the cluster you can use
+To stop the cluster, you can use:
 
-    npm stop
+```bash
+npm stop
+```
 
-### Syncing databases with the blockchain
+## Syncing databases with the blockchain
 
-sync.js (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
+`sync.js` (located in `scripts/`) is used for updating the local databases. This script must be called from the explorer's root directory.
 
-    Usage: node scripts/sync.js [database] [mode]
+Usage:
 
-    database: (required)
-    index [mode] Main index: coin info/stats, transactions & addresses
-    market       Market data: summaries, orderbooks, trade history & chartdata
+```bash
+node scripts/sync.js [database] [mode]
+```
 
-    mode: (required for index database only)
-    update       Updates index from last sync to current block
-    check        checks index for (and adds) any missing transactions/addresses
-    reindex      Clears index then resyncs from genesis to current block
+- `database`: (required)
+  - `index [mode]`: Main index: coin info/stats, transactions & addresses
+  - `market`: Market data: summaries, orderbooks, trade history & chartdata
 
-    notes:
-    * 'current block' is the latest created block when script is executed.
-    * The market database only supports (& defaults to) reindex mode.
-    * If check mode finds missing data(ignoring new data since last sync),
-      index_timeout in settings.json is set too low.
+- `mode`: (required for `index` database only)
+  - `update`: Updates index from last sync to current block
+  - `check`: Checks index for (and adds) any missing transactions/addresses
+  - `reindex`: Clears index then resyncs from genesis to current block
 
+Notes:
+- 'current block' is the latest created block when the script is executed.
+- The market database only supports (& defaults to) reindex mode.
+- If check mode finds missing data (ignoring new data since the last sync), `index_timeout` in `settings.json` is set too low.
 
-*It is recommended to have this script launched via a cronjob at 1+ min intervals.*
+It is recommended to have this script launched via a cronjob at 1+ minute intervals.
 
-**crontab**
+**Example crontab:**
 
-*Example crontab; update index every minute and market data every 2 minutes*
+```bash
+*/1 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/sync.js index update > /dev/null 2>&1
+*/2 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1
+*/5 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1
+```
 
-    */1 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/sync.js index update > /dev/null 2>&1
-    */2 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1
-    */5 * * * * cd /path/to/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1
+## Wallet Configuration
 
-### Wallet
+FairCoin Explorer is intended to be generic, so it can be used with any wallet following the usual standards. The wallet must be running with at least the following flags:
 
-Iquidus Explorer is intended to be generic, so it can be used with any wallet following the usual standards. The wallet must be running with atleast the following flags
+```bash
+-daemon -txindex
+```
 
-    -daemon -txindex
-    
-### Security
+## Security Considerations
 
-Ensure mongodb is not exposed to the outside world via your mongo config or a firewall to prevent outside tampering of the indexed chain data. 
+Ensure MongoDB is not exposed to the outside world via your MongoDB configuration or a firewall to prevent outside tampering of the indexed chain data.
 
-### Known Issues
+## Known Issues and Troubleshooting
 
-**script is already running.**
+**Script is already running.**
 
-If you receive this message when launching the sync script either a) a sync is currently in progress, or b) a previous sync was killed before it completed. If you are certian a sync is not in progress remove the index.pid and db_index.pid from the tmp folder in the explorer root directory.
+If you receive this message when launching the sync script, either:
+a) A sync is currently in progress, or
+b) A previous sync was killed before it completed.
 
-    rm tmp/index.pid
-    rm tmp/db_index.pid
+If you are certain a sync is not in progress, remove the `index.pid` and `db_index.pid` files from the `tmp` folder in the explorer root directory.
 
-**exceeding stack size**
+```bash
+rm tmp/index.pid
+rm tmp/db_index.pid
+```
 
-    RangeError: Maximum call stack size exceeded
+**Exceeding stack size**
 
-Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.js the stack size needs to be increased.
+```bash
+RangeError: Maximum call stack size exceeded
+```
 
-To determine the default setting run
+Node's default stack size may be too small to index addresses with many transactions. If you experience the above error while running `sync.js`, the stack size needs to be increased.
 
-    node --v8-options | grep -B0 -A1 stack_size
+To determine the default setting, run:
 
-To run sync.js with a larger stack size launch with
+```bash
+node --v8-options | grep -B0 -A1 stack_size
+```
 
-    node --stack-size=[SIZE] scripts/sync.js index update
+To run `sync.js` with a larger stack size, launch with:
 
-Where [SIZE] is an integer higher than the default.
+```bash
+node --stack-size=[SIZE] scripts/sync.js index update
+```
 
-*note: SIZE will depend on which blockchain you are using, you may need to play around a bit to find an optimal setting*
+Where `[SIZE]` is an integer higher than the default.
 
-### License
+*Note: `[SIZE]` will depend on which blockchain you are using; you may need to experiment to find an optimal setting.*
+
+## License
 
 Copyright (c) 2015, Iquidus Technology  
 Copyright (c) 2015, Luke Williams  
