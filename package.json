@@ -5,9 +5,7 @@
   "scripts": {
     "start": "node --stack-size=10000 ./bin/cluster",
     "stop": "kill -2 $(cat tmp/cluster.pid)",
-    "test": "node ./node_modules/jasmine/bin/jasmine.js",
-    "build": "next build",
-    "vercel-build": "npm run build"
+    "test": "node ./node_modules/jasmine/bin/jasmine.js"
   },
   "dependencies": {
     "async": "^3.1.0",
