@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "bin/cluster",
+      "src": "app.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/bin/cluster"
+      "dest": "/app.js"
     }
   ]
 }
